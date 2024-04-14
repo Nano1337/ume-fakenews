@@ -53,4 +53,4 @@ gdown 1KGmyajyy054i4vhFpXqvE-ScphjiTeCn
 
 4. Start training the model with `python main.py --dir fakeddit`. 
 
-
+TODO: add testing script with precision, recall, and F1 score. Add documentation on how to test it
