@@ -11,7 +11,6 @@ from utils.EMA import EMA
 # existing benchmark algos
 from existing_algos.OGM_GE import ogm_ge
 
-
 class JointLogitsBaseModel(pl.LightningModule, ABC): 
 
     def __init__(self, args): 

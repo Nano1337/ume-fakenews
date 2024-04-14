@@ -27,5 +27,20 @@ uv pip install -r requirements.txt
 
 3. version b: Install the usual way required packages by running `pip install -r requirements.txt`
 
+## Datasets
+
+First, create a data folder from the root of the repository with `mkdir data`. 
+
+
+### Fakeddit Dataset: 
+
+Link repo 
+public_image_set is 109GB
+Upload preprocessed dataframes to personal drive
+
+## TODO: 
+1. Write extract token script to attain CLIP embeddings for image and text data and save. Refer to Food101 code for how to do this. 
+2. Replace image and text backbone with just CLIP, refer to Food101 code for how to use CLIP.
+
 
 
