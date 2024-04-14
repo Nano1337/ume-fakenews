@@ -39,6 +39,9 @@ class FusionNet(nn.Module):
         self.x1_model = MLP(input_dim=768, hidden_dim=512, num_classes=num_classes)
         self.x2_model = MLP(input_dim=768, hidden_dim=512, num_classes=num_classes)
 
+        self.w1 = 1.0
+        self.w2 = 1.0
+
 
     def forward(self, x1_data, x2_data, label):
         """ Forward pass for the FusionNet model. Fuses at logit level.
@@ -56,6 +59,9 @@ class FusionNet(nn.Module):
     
         x1_logits = self.x1_model(output['text_embeds'])
         x2_logits = self.x2_model(output['image_embeds'])
+
+        x1_logits = self.w1 * x1_logits
+        x2_logits = self.w2 * x2_logits
 
         x1_loss = self.loss_fn(x1_logits, label)
         x2_loss = self.loss_fn(x2_logits, label)

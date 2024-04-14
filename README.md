@@ -54,3 +54,4 @@ gdown 1KGmyajyy054i4vhFpXqvE-ScphjiTeCn
 4. Start training the model with `python main.py --dir fakeddit`. 
 
 TODO: add testing script with precision, recall, and F1 score. Add documentation on how to test it
+TODO: test late fusion, ogm-ge, qmf and run those checkpoints through the testing script too
