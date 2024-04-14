@@ -1,0 +1,19 @@
+num_classes: 2 # int: number of classes in the dataset
+batch_size: 64 # int: batch size for training
+learning_rate: 1.0e-3 # float: learning rate for training
+num_epochs: 100 # int: number of epochs to train
+dropout_p: 0.1 # float: dropout probability
+gpus: [0] # list: list of gpus to use for training
+data_path: "data/cremad/" # str: path to the dataset
+num_cpus: 12 # int: number of cpus to use for training
+
+# main settings that need to be checked
+use_wandb: False # bool: whether to use wandb for logging
+model_type: "jlogits" # Options: ('jlogits' | 'ensemble' | 'ensemble' | [custom])
+group_name: "test" # str: name of the group for wandb logging and checkpoint folder naming
+seed: 5 # random seed for reproducibility
+use_scheduler: True # bool: whether to use a learning rate scheduler (can override in model file)
+
+# OGM-GE settings
+grad_mod_type: "OGM_GE" # Options: (None | 'OGM_GE' | 'OGM' | 'noise') 
+alpha: 0.1 # recommended 0.1 default
