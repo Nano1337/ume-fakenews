@@ -1,6 +1,6 @@
 menv/
 __pycache__/
-fakeddit/
+data/fakeddit/
 wandb/
 ckpts/
 
