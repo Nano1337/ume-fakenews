@@ -43,15 +43,14 @@ tar -xjf public_images.tar.bz2
 
 2. Download associated metadata from [here](https://drive.google.com/drive/folders/18WlBxUf_AHUlWGi4TYuVSdoQtdNht03_?usp=sharing). You can either manually download or use gdown again: 
 ```bash
+cd data/fakeddit
+gdown 1QMmD6Y7OpeGWNMiaqtwfEiXeWs3BB3iq
+gdown 19mjxS1z6jZodhzkH1DyBO8gddqQXMHOh
+gdown 1KGmyajyy054i4vhFpXqvE-ScphjiTeCn
+```
 
+3. Modify the config file `fakeddit/fakeddit.yaml` to point to the correct paths. Ensure the batch size fits within your GPU VRAM capacity. I'm running with a 24GB 4090 GPU, so I can use a batch size of 144 that uses about 22GB VRAM.
 
-Link repo 
-public_image_set is 109GB
-Upload preprocessed dataframes to personal drive
-
-## TODO: 
-1. Write extract token script to attain CLIP embeddings for image and text data and save. Refer to Food101 code for how to do this. 
-2. Replace image and text backbone with just CLIP, refer to Food101 code for how to use CLIP.
-
+4. Start training the model with `python main.py --dir fakeddit`. 
 
 
