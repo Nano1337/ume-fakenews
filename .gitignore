@@ -1,3 +1,5 @@
 menv/
 __pycache__/
 fakeddit/
+wandb/
+ckpts/

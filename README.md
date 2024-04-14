@@ -29,10 +29,21 @@ uv pip install -r requirements.txt
 
 ## Datasets
 
-First, create a data folder from the root of the repository with `mkdir data`. 
+First, create a data folde  r from the root of the repository with `mkdir data`. 
 
 
 ### Fakeddit Dataset: 
+
+1. Download the images and then decompress. Make sure you have gdown installed. NOTE: This dataset is 109GB.
+```bash 
+cd data/fakeddit
+gdown 1cjY6HsHaSZuLVHywIxD5xQqng33J5S2b
+tar -xjf public_images.tar.bz2
+```
+
+2. Download associated metadata from [here](https://drive.google.com/drive/folders/18WlBxUf_AHUlWGi4TYuVSdoQtdNht03_?usp=sharing). You can either manually download or use gdown again: 
+```bash
+
 
 Link repo 
 public_image_set is 109GB
