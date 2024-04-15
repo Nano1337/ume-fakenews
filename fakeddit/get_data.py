@@ -1,6 +1,6 @@
 import torch 
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
+from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler, default_collate
 import pandas as pd
 import numpy as np
 import os
@@ -49,18 +49,21 @@ class FakedditDataset(Dataset):
             return text, image, label, idx
         return text, image, label
     
-    def collate_fn(self, data):
+    def custom_collate_fn(self, data):
         if 'qmf' in self.args.model_type:
             text, image, label, idx = zip(*data)
+            label = default_collate(label)
+            idx = default_collate(idx)
         else:
             text, image, label = zip(*data)
+            label = default_collate(label)
 
         inputs = self.processor(text=text, images=image, padding="max_length", return_tensors="pt", truncation=True)
         text_tokens = inputs["input_ids"]
         img_tokens = inputs["pixel_values"]
 
         if 'qmf' in self.args.model_type:
-            return text_tokens, img_tokens, torch.stack(label), idx
+            return text_tokens, img_tokens, label, idx
         else:   
             return text_tokens, img_tokens, torch.stack(label)
     

@@ -18,8 +18,8 @@ alpha: 0.1
 
 # main settings that need to be checked
 use_wandb: True
-model_type: "jlogits" # Options: see __init__.py in this directory
-group_name: "fakeddit_cls2_jlogits_sgd_scheduler" 
+model_type: "qmf" # Options: see __init__.py in this directory
+group_name: "fakeddit_cls2_qmf_sgd_scheduler" 
 seed: 0
 use_scheduler: True
 

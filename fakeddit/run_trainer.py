@@ -35,7 +35,7 @@ def run_training():
     args = setup_configs()
 
     train_dataset, val_dataset, test_dataset = get_data(args)
-
+    setattr(args, 'num_samples', len(train_dataset))
     # get dataloaders
     train_loader = DataLoader(
         train_dataset,
@@ -43,7 +43,7 @@ def run_training():
         num_workers=args.num_cpus, 
         persistent_workers=True,
         prefetch_factor = 4,
-        collate_fn=train_dataset.collate_fn,
+        collate_fn=train_dataset.custom_collate_fn,
         sampler=get_sampler(train_dataset), 
         pin_memory=True,
     )
@@ -55,7 +55,7 @@ def run_training():
         persistent_workers=True, 
         prefetch_factor=4,
         shuffle=False, 
-        collate_fn=val_dataset.collate_fn, 
+        collate_fn=val_dataset.custom_collate_fn, 
         pin_memory=True, 
     )
 
@@ -66,7 +66,7 @@ def run_training():
         persistent_workers=True, 
         prefetch_factor=4,
         shuffle=False,
-        collate_fn=test_dataset.collate_fn, 
+        collate_fn=test_dataset.custom_collate_fn, 
         pin_memory=True,
     )
 
