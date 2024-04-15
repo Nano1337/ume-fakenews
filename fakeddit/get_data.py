@@ -65,7 +65,7 @@ class FakedditDataset(Dataset):
         if 'qmf' in self.args.model_type:
             return text_tokens, img_tokens, label, idx
         else:   
-            return text_tokens, img_tokens, torch.stack(label)
+            return text_tokens, img_tokens, label 
     
 def get_sampler(dataset): 
     label_counts = dataset.data_frame[dataset.label].value_counts().to_dict()

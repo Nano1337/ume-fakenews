@@ -1,7 +1,7 @@
 # training settings
 num_classes: 2 # options: 2, 3, 6
 batch_size: 144 # try maxing out batch size to VRAM, 24Gb available
-learning_rate: 0.01
+learning_rate: 0.05 # 0.01 for all models except ensemble
 num_epochs: 2
 max_seq_len: 40
 dropout_p: 0.1
@@ -18,8 +18,8 @@ alpha: 0.1
 
 # main settings that need to be checked
 use_wandb: True
-model_type: "qmf" # Options: see __init__.py in this directory
-group_name: "fakeddit_cls2_qmf_sgd_scheduler" 
+model_type: "ensemble" # Options: see __init__.py in this directory
+group_name: "fakeddit_cls2_ensemble_sgd_scheduler_lr=0.05_2.0x1" 
 seed: 0
 use_scheduler: True
 
