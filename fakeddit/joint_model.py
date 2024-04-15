@@ -58,7 +58,7 @@ class FusionNet(nn.Module):
         x2_logits = self.x2_model(output['image_embeds'])
 
         # fuse at logit level
-        avg_logits = (x1_logits + x2_logits) / 2
+        avg_logits = (x1_logits + 0.5*x2_logits) / 2
 
         loss = self.loss_fn(avg_logits, label)
 

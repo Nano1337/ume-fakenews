@@ -1,8 +1,8 @@
 # training settings
 num_classes: 2 # options: 2, 3, 6
 batch_size: 144 # try maxing out batch size to VRAM, 24Gb available
-learning_rate: 0.05 # 0.01 for all models except ensemble
-num_epochs: 2
+learning_rate: 0.01 
+num_epochs: 1 # only one epoch needed for convergence
 max_seq_len: 40
 dropout_p: 0.1
 gpus: [0]
@@ -18,11 +18,10 @@ alpha: 0.1
 
 # main settings that need to be checked
 use_wandb: True
-model_type: "ensemble" # Options: see __init__.py in this directory
-group_name: "fakeddit_cls2_ensemble_sgd_scheduler_lr=0.05_2.0x1" 
+model_type: "jlogits" # Options: see __init__.py in this directory
+group_name: "fakeddit_cls2_jlogit_sgd_scheduler_1epoch" 
 seed: 0
 use_scheduler: True
 
 # NOTE: each epoch takes about 25 minutes
-# TODO: need to tune learning rate and scheduler to optimize training better. Use a better optimizer
 
