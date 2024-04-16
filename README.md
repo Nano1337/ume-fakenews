@@ -53,5 +53,25 @@ gdown 1KGmyajyy054i4vhFpXqvE-ScphjiTeCn
 
 4. Start training the model with `python main.py --dir fakeddit`. 
 
-TODO: add testing script with precision, recall, and F1 score. Add documentation on how to test it
-TODO: test late fusion, ogm-ge, qmf and run those checkpoints through the testing script too
+### Weibo Dataset: 
+
+1. Download the dataset using gdown, put it in the `data/weibo` folder, and decompress.
+```bash
+cd data/weibo
+gdown 14VQ7EWPiFeGzxp3XC2DeEHi-BEisDINn
+unzip weibo.zip
+```
+
+2. Download the processed annotation files from [here](https://drive.google.com/drive/folders/1QAD0BbqmHtElqt-pJWxsxdCUau1JW08R?usp=sharing) or use gdown: 
+```bash
+cd data/weibo
+gdown 1oRosxoIjvYAlgWy4zIcUo8q4Ggx-lQCt
+gdown 1qhrTwjFIJagC7mqqGp5VwsujLOkVJdou
+```
+
+3. Modify the config file `weibo/weibo.yaml` to point to the correct paths. Update the path and model type as needed.
+
+4. Start training the model with `python main.py --dir weibo`.
+
+
+
