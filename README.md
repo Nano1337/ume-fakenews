@@ -73,5 +73,11 @@ gdown 1qhrTwjFIJagC7mqqGp5VwsujLOkVJdou
 
 4. Start training the model with `python main.py --dir weibo`.
 
+## Reproduce Test Metrics
 
+1. After you have trained the models, you can reproduce the test metrics by first finding the checkpoint file for the model you want to evaluate. This file should be in the `data/{dataset}/_ckpt` folder. 
+
+2. Copy the absolute path of that checkpoint file and fill out the rest of the variables in the `generate_metrics.sh` file. You will also have to go into the `{dataset}.yaml` file and update the `model_type` variable to match the model you want to evaluate.
+
+3. Run the script with `bash generate_metrics.sh`. This will print to the console the test metrics for the model you selected.
 

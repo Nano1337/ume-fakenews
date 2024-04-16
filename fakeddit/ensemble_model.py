@@ -40,7 +40,7 @@ class FusionNet(nn.Module):
         self.x2_model = MLP(input_dim=768, hidden_dim=512, num_classes=num_classes)
 
         self.w1 = 1.0
-        self.w2 = 2.0
+        self.w2 = 1.0
 
 
     def forward(self, x1_data, x2_data, label):

@@ -4,7 +4,7 @@ from pytorch_lightning import seed_everything
 from utils.merge_yaml import load_and_merge_yaml
 
 
-def setup_configs(): 
+def setup_configs(parser=None): 
     """
     Purpose: 
         - Parse command line arguments 
@@ -17,8 +17,9 @@ def setup_configs():
     """
 
     # load configs into args
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dir", type=str, default=None) 
+    if parser is None:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--dir", type=str, default=None) 
     args = parser.parse_args()
     cfg = None
     if args.dir:
