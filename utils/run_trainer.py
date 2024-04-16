@@ -55,7 +55,7 @@ def run_trainer(args, model, train_loader, val_loader, test_loader, overfit_batc
         )
     else: 
         raise NotImplementedError("It is not advised to train without a GPU")
-    
+
     trainer.fit(
         model, 
         train_dataloaders=train_loader, 

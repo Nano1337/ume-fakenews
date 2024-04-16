@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from utils.BaseModel import EnsembleBaseModel
+from utils.BaseModel import JointLogitsBaseModel
 
 from transformers import BertModel
 from transformers import BertConfig
@@ -105,15 +105,14 @@ class FusionNet(nn.Module):
         x1_logits = self.x1_model(text_output)
         x2_logits = self.x2_model(image_output)
 
-        x1_logits = self.w1 * x1_logits
-        x2_logits = self.w2 * x2_logits
+        # fuse at logit level
+        avg_logits = (x1_logits + x2_logits) / 2
 
-        x1_loss = self.loss_fn(x1_logits, label)
-        x2_loss = self.loss_fn(x2_logits, label)
+        loss = self.loss_fn(avg_logits, label)
 
-        return (x1_logits, x2_logits, x1_loss, x2_loss)
+        return (x1_logits, x2_logits, avg_logits, loss)
 
-class MultimodalWeiboModel(EnsembleBaseModel): 
+class MultimodalWeiboModel(JointLogitsBaseModel): 
 
     def __init__(self, args): 
         """Initialize MultimodalWeiboModel.
@@ -128,14 +127,14 @@ class MultimodalWeiboModel(EnsembleBaseModel):
         optimizer = torch.optim.SGD(self.parameters(), lr=self.args.learning_rate, momentum=0.9, weight_decay=1.0e-4)
         if self.args.use_scheduler:
             scheduler = {
-                'scheduler': StepLR(optimizer, step_size=20, gamma=0.5),
-                'interval': 'epoch',
+                'scheduler': StepLR(optimizer, step_size=500, gamma=0.5),
+                'interval': 'step',
                 'frequency': 1,
             }
             return [optimizer], [scheduler]
             
         return optimizer
-    
+
     def _build_model(self):
         return FusionNet(
             num_classes=self.args.num_classes, 

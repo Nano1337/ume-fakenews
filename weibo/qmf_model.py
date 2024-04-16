@@ -2,7 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from utils.BaseModel import EnsembleBaseModel
+from utils.BaseModel import QMFBaseModel
+
+from existing_algos.QMF import QMF
+
 
 from transformers import BertModel
 from transformers import BertConfig
@@ -31,13 +34,17 @@ def mean_pooling(model_output, attention_mask):
 
 class FusionNet(nn.Module):
     def __init__(
-            self, 
-            num_classes, 
+            self,
+            args,
             loss_fn
             ):
         super(FusionNet, self).__init__()
 
-        self.num_classes = num_classes
+        self.args = args
+        self.num_classes = self.args.num_classes
+        self.num_modality = 2
+        self.qmf = QMF(self.num_modality, self.args.num_samples)
+
         self.loss_fn = loss_fn
         # Create a BERT configuration
         config = BertConfig(
@@ -78,14 +85,14 @@ class FusionNet(nn.Module):
             param.requires_grad = False
         for param in self.image_backbone.parameters():
             param.requires_grad = False
-        self.x2_model = MLP(input_dim=25088, hidden_dim=512, num_classes=num_classes)
-        self.x1_model = MLP(input_dim=128, hidden_dim=64, num_classes=num_classes)
+        self.x2_model = MLP(input_dim=25088, hidden_dim=512, num_classes=self.args.num_classes)
+        self.x1_model = MLP(input_dim=128, hidden_dim=64, num_classes=self.args.num_classes)
 
         self.w1 = 1.0
         self.w2 = 1.0
 
 
-    def forward(self, x1_data, x2_data, label):
+    def forward(self, x1_data, x2_data, label, idx):
         """ Forward pass for the FusionNet model. Fuses at logit level.
         
         Args:
@@ -105,15 +112,24 @@ class FusionNet(nn.Module):
         x1_logits = self.x1_model(text_output)
         x2_logits = self.x2_model(image_output)
 
-        x1_logits = self.w1 * x1_logits
-        x2_logits = self.w2 * x2_logits
+        out = torch.stack([x1_logits, x2_logits])
+        logits_df, conf = self.qmf.df(out) # logits_df is (B, C), conf is (M, B)
+        loss_uni = []
+        for n in range(self.num_modality):
+            loss_uni.append(self.loss_fn(out[n], label))
+            self.qmf.history[n].correctness_update(idx, loss_uni[n], conf[n].squeeze())
 
-        x1_loss = self.loss_fn(x1_logits, label)
-        x2_loss = self.loss_fn(x2_logits, label)
+        loss_reg = self.qmf.reg_loss(conf, idx.squeeze())
+        loss_joint = self.loss_fn(logits_df, label)
 
-        return (x1_logits, x2_logits, x1_loss, x2_loss)
+        loss = loss_joint + torch.sum(torch.stack(loss_uni)) + loss_reg
 
-class MultimodalWeiboModel(EnsembleBaseModel): 
+        # fuse at logit level
+        avg_logits = (x1_logits + x2_logits) / 2
+
+        return (x1_logits, x2_logits, avg_logits, loss, logits_df)
+
+class MultimodalWeiboModel(QMFBaseModel): 
 
     def __init__(self, args): 
         """Initialize MultimodalWeiboModel.
@@ -128,8 +144,8 @@ class MultimodalWeiboModel(EnsembleBaseModel):
         optimizer = torch.optim.SGD(self.parameters(), lr=self.args.learning_rate, momentum=0.9, weight_decay=1.0e-4)
         if self.args.use_scheduler:
             scheduler = {
-                'scheduler': StepLR(optimizer, step_size=20, gamma=0.5),
-                'interval': 'epoch',
+                'scheduler': StepLR(optimizer, step_size=500, gamma=0.5),
+                'interval': 'step',
                 'frequency': 1,
             }
             return [optimizer], [scheduler]
@@ -138,6 +154,6 @@ class MultimodalWeiboModel(EnsembleBaseModel):
     
     def _build_model(self):
         return FusionNet(
-            num_classes=self.args.num_classes, 
+            args=self.args, 
             loss_fn=nn.CrossEntropyLoss()
         )
