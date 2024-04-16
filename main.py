@@ -7,6 +7,8 @@ arg = parser.parse_args()
 
 if arg.dir == "fakeddit":
     from fakeddit.run_trainer import run_training
+elif arg.dir == "weibo":
+    from weibo.run_trainer import run_training 
 else: 
     raise NotImplementedError("Please specify a directory to run")
 

@@ -3,4 +3,4 @@ __pycache__/
 data/fakeddit/
 wandb/
 ckpts/
-data/twitter/
+data/weibo/

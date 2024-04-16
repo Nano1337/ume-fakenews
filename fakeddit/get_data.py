@@ -89,8 +89,9 @@ if __name__ == "__main__":
     setattr(args, 'model_type', 'qmf')
     setattr(args, 'num_classes', 2)
 
-    dataset = FakedditDataset(args, mode='train')
-    
+    dataset = FakedditDataset(args, mode='test')
+    print(len(dataset))
+    exit()    
     loader = DataLoader(
         dataset,
         batch_size=64,
