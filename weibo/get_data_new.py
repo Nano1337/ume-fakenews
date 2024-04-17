@@ -8,14 +8,15 @@ from torch.utils.data import Dataset, DataLoader, default_collate, WeightedRando
 from PIL import Image
 import argparse
 
-from transformers import AutoProcessor
+from transformers import AutoProcessor, ChineseCLIPProcessor
 import torchvision.transforms as transforms
 
 class WeiboDataset(Dataset): 
     def __init__(self, args, data_type):
         self.args = args
         self.data = pd.read_csv(os.path.join(args.data_path, "{}_data.csv".format(data_type)))
-        self.processor = AutoProcessor.from_pretrained("google/siglip-base-patch16-224")
+        # self.processor = AutoProcessor.from_pretrained("google/siglip-base-patch16-224")
+        self.processor = ChineseCLIPProcessor.from_pretrained("OFA-Sys/chinese-clip-vit-base-patch16")
         self.transform = transforms.Compose([
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(),
@@ -52,19 +53,18 @@ class WeiboDataset(Dataset):
             text, image, label = zip(*data)
             label = default_collate(label)
 
-        inputs = self.processor(text=text, images=image, padding="max_length", return_tensors="pt", truncation=True)
-        text_tokens = inputs["input_ids"]
-        img_tokens = inputs["pixel_values"]
+        inputs = self.processor(text=text, images=image, return_tensors="pt", padding=True)
 
         if 'qmf' in self.args.model_type:
-            return text_tokens, img_tokens, label, idx
+            return inputs, label, idx
         else:   
-            return text_tokens, img_tokens, label 
+            return inputs, label 
         
 def get_sampler(dataset):
     label_counts = dataset.data.label.value_counts()
-    weights = 1.0 / label_counts
-    return WeightedRandomSampler(weights, len(dataset))
+    weights = 1.0 / label_counts[dataset.data.label].values
+    sampler = WeightedRandomSampler(weights, num_samples=len(weights), replacement=True)
+    return sampler
         
 def get_data(args):
     train_set = WeiboDataset(args, "train")

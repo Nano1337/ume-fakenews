@@ -106,7 +106,6 @@ class JointLogitsBaseModel(pl.LightningModule, ABC):
         self.train_metrics["train_x1_acc"].append(x1_acc_cal.item())
         self.train_metrics["train_x2_acc"].append(x2_acc_cal.item())
 
-
         # Return the loss
         return loss
     

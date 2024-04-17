@@ -1,8 +1,8 @@
 # training settings
 num_classes: 2 # options: 2, 3, 6
-batch_size: 64 # try maxing out batch size to VRAM, 24Gb available
-learning_rate: 1.0e-4
-num_epochs: 1 # only one epoch needed for convergence
+batch_size: 50 # try maxing out batch size to VRAM, 24Gb available
+learning_rate: 0.01
+num_epochs: 20 # only one epoch needed for convergence
 max_seq_len: 40
 dropout_p: 0.1
 gpus: [0]
@@ -14,11 +14,10 @@ grad_mod_type: "OGM_GE" # Options: (None | 'OGM_GE' | 'OGM' | 'noise')
 alpha: 0.1 
 
 # main settings that need to be checked
-use_wandb: False
+use_wandb: True
 model_type: "qmf" # Options: see __init__.py in this directory
-group_name: "weibo_cls2_qmf" 
+group_name: "weibo_cls2_qmf_chineseclip_lr=0.01_scheduler" 
 seed: 0
 use_scheduler: True
 
-# NOTE: each epoch takes about 25 minutes
 

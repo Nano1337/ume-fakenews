@@ -11,6 +11,9 @@ import torch
 from torch.utils.data import DataLoader
 from utils.setup_configs import setup_configs
 
+import warnings
+warnings.filterwarnings("ignore")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="which directory to run")
     parser.add_argument("--dir", type=str, default=None, help="directory to run")
@@ -40,11 +43,10 @@ if __name__ == "__main__":
             prefetch_factor=4,
             shuffle=False,
             collate_fn=test_set.custom_collate_fn, 
-            pin_memory=True,
         )
         model = get_model(args)
     elif args.dir == "weibo":
-        from weibo.get_data import WeiboDataset
+        from weibo.get_data_new import WeiboDataset
         from weibo import get_model
         test_set = WeiboDataset(args, "test")
         setattr(args, "num_samples", len(test_set))
@@ -56,7 +58,6 @@ if __name__ == "__main__":
             prefetch_factor=4,
             shuffle=False,
             collate_fn=test_set.custom_collate_fn, 
-            pin_memory=True,
         )
         model = get_model(args)
     else: 
@@ -80,24 +81,45 @@ if __name__ == "__main__":
     # run inference
     with torch.no_grad():
         for batch in tqdm(test_loader, desc="Running Inference"):
-            if model_type == "qmf":
-                text, image, label, idx = batch
-                text, image, label = text.to(device), image.to(device), label.to(device)
-            else: 
-                text, image, label = batch 
-                text, image, label = text.to(device), image.to(device), label.to(device)
+            if args.dir == "weibo":
+                if model_type == "qmf":
+                    inputs, label, idx = batch
+                    inputs, label = inputs.to(device), label.to(device)
+                else: 
+                    inputs, label = batch
+                    inputs, label = inputs.to(device), label.to(device)
+                if model_type == "jlogits":
+                    _, _, logits, _ = model(inputs, label) 
+                elif model_type == "ensemble":
+                    x1_logits, x2_logits, _, _ = model(inputs, label)
+                    logits = (x1_logits + x2_logits)/2
+                elif model_type == "ogm_ge": 
+                    _, _, logits, _ = model(inputs, label)
+                elif model_type == "qmf":
+                    _, _, logits, _, _ = model(inputs, label, idx)
+                else: 
+                    raise NotImplementedError("Model type not implemented")
+            elif args.dir == "fakeddit":
+                if model_type == "qmf":
+                    text, image, label, idx = batch
+                    text, image, label = text.to(device), image.to(device), label.to(device)
+                else: 
+                    text, image, label = batch 
+                    text, image, label = text.to(device), image.to(device), label.to(device)
 
-            if model_type == "jlogits":
-                _, _, logits, _ = model(text, image, label) 
-            elif model_type == "ensemble":
-                x1_logits, x2_logits, _, _ = model(text, image, label)
-                logits = (x1_logits + x2_logits)/2
-            elif model_type == "ogm_ge": 
-                _, _, logits, _ = model(text, image, label)
-            elif model_type == "qmf":
-                _, _, _, _, logits = model(text, image, label, idx)
+                if model_type == "jlogits":
+                    _, _, logits, _ = model(text, image, label) 
+                elif model_type == "ensemble":
+                    x1_logits, x2_logits, _, _ = model(text, image, label)
+                    logits = (x1_logits + x2_logits)/2
+                elif model_type == "ogm_ge": 
+                    _, _, logits, _ = model(text, image, label)
+                elif model_type == "qmf":
+                    _, _, _, _, logits = model(text, image, label, idx)
+                else: 
+                    raise NotImplementedError("Model type not implemented")
             else: 
-                raise NotImplementedError("Model type not implemented")
+                raise NotImplementedError("Dataset not implemented")
             
             pred = torch.argmax(logits, dim=1)
             true_labels.extend(label.cpu().numpy())

@@ -16,7 +16,8 @@ class WeiboDataset(Dataset):
         self.args = args
         self.data = pd.read_csv(os.path.join(args.data_path, "{}_data.csv".format(data_type)))
         self.data = self.data.sample(frac=fraction, random_state=1)  # Use only a fraction of the dataset
-        self.tokenizer = BertTokenizer.from_pretrained('shibing624/text2vec-base-chinese')
+        # self.tokenizer = BertTokenizer.from_pretrained('shibing624/text2vec-base-chinese')
+        self.tokenizer = AutoTokenizer.from_pretrained("bert-base-chinese")
         self.transform = transforms.Compose([
             transforms.Resize(224),
             transforms.RandomHorizontalFlip(),
@@ -65,7 +66,6 @@ class WeiboDataset(Dataset):
             
             """
 
-        
     def custom_collate_fn(self, data):
         if 'qmf' in self.args.model_type:
             text, image, label, idx = zip(*data)
@@ -77,20 +77,47 @@ class WeiboDataset(Dataset):
             image = default_collate(image)
             label = default_collate(label)
 
-        text = self.tokenizer(list(text), padding=True, truncation=True, return_tensors='pt')
+        # Ensure the input data to the tokenizer is correctly structured
+        text = self.tokenizer(text=list(text), padding=True, truncation=True, return_tensors='pt')
 
         if 'qmf' in self.args.model_type:
             return text, image, label, idx
         else:   
             return text, image, label
         
+    # def custom_collate_fn(self, data):
+    #     if 'qmf' in self.args.model_type:
+    #         text, image, label, idx = zip(*data)
+    #         image = default_collate(image)
+    #         label = default_collate(label)
+    #         idx = default_collate(idx)
+    #     else:
+    #         text, image, label = zip(*data)
+    #         image = default_collate(image)
+    #         label = default_collate(label)
+
+    #     text = self.tokenizer(list(text), padding=True, truncation=True, return_tensors='pt')
+
+    #     if 'qmf' in self.args.model_type:
+    #         return text, image, label, idx
+    #     else:   
+    #         return text, image, label
+        
+    def get_sampler(dataset):
+        label_counts = dataset.data.label.value_counts()
+        weights = 1.0 / label_counts[dataset.data.label].values
+        sampler = WeightedRandomSampler(weights, num_samples=len(weights), replacement=True)
+        return sampler
+
 def get_sampler(dataset):
     label_counts = dataset.data.label.value_counts()
-    weights = 1.0 / label_counts
-    return WeightedRandomSampler(weights, len(dataset))
+    weights = 1.0 / label_counts[dataset.data.label].values
+    sampler = WeightedRandomSampler(weights, num_samples=len(weights), replacement=True)
+    return sampler
         
+
 def get_data(args):
-    train_set = WeiboDataset(args, "train", fraction=0.5)
+    train_set = WeiboDataset(args, "train", fraction=1) # normally 0.5
     val_set = WeiboDataset(args, "test")
     test_set = WeiboDataset(args, "test")
     return train_set, val_set, test_set
@@ -103,11 +130,10 @@ if __name__ == "__main__":
     dataset = WeiboDataset(args, "train")
     
     # make dataloader
-    """
-    dataloader = DataLoader(dataset, batch_size=2, shuffle=True, collate_fn=dataset.custom_collate_fn)
+    sampler = get_sampler(dataset)
+    dataloader = DataLoader(dataset, batch_size=64, collate_fn=dataset.custom_collate_fn, sampler=sampler)
     batch = next(iter(dataloader))
-    print(batch[0].shape, batch[1].shape, batch[2].shape, batch[3].shape if len(batch) == 4 else None)
-    """
-
-    label_distribution = dataset.data.label.value_counts()
-    print(label_distribution)
+    # print(batch[0].shape, batch[1].shape, batch[2].shape, batch[3].shape if len(batch) == 4 else None)
+    print(batch[2])
+    # label_distribution = dataset.data.label.value_counts()
+    # print(label_distribution)
