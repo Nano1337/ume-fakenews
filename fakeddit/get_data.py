@@ -89,9 +89,23 @@ if __name__ == "__main__":
     setattr(args, 'model_type', 'qmf')
     setattr(args, 'num_classes', 2)
 
-    dataset = FakedditDataset(args, mode='test')
-    print(len(dataset))
-    exit()    
+    train_set, val_set, test_set = get_data(args)
+
+    def get_label_distribution(dataset):
+        label_counts = dataset.data_frame[dataset.label].value_counts(normalize=True) * 100
+        return label_counts
+    
+
+    train_set, val_set, test_set = get_data(args)
+    train_label_distribution = get_label_distribution(train_set)
+    val_label_distribution = get_label_distribution(val_set)
+    test_label_distribution = get_label_distribution(test_set)
+    
+    print("Training Set Label Distribution:\n", train_label_distribution)
+    print("Validation Set Label Distribution:\n", val_label_distribution)
+    print("Test Set Label Distribution:\n", test_label_distribution)
+
+    exit()
     loader = DataLoader(
         dataset,
         batch_size=64,
