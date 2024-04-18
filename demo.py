@@ -7,26 +7,25 @@ from fakeddit import get_model
 import argparse
 from utils.setup_configs import setup_configs
 
-parser = argparse.ArgumentParser(description="which directory to run")
-parser.add_argument("--dir", type=str, default=None, help="directory to run")
-parser.add_argument("--model_type", type=str, default=None, help="model type to run")
-parser.add_argument("--ckpt", type=str, default=None, help="checkpoint to load")
+# Argument parser setup
+parser = argparse.ArgumentParser(description="Specify the directory and model parameters")
+parser.add_argument("--dir", type=str, help="directory to run")
+parser.add_argument("--model_type", type=str, help="model type to run")
+parser.add_argument("--ckpt", type=str, help="checkpoint to load")
 args = parser.parse_args()
-model_type = args.model_type
-ckpt = args.ckpt
 args = setup_configs(parser=parser)
 
-setattr(args, "model_type", str(args.model_type))
-setattr(args, "ckpt", str(args.ckpt))
-
+# Set device for model execution
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# load in model
+# Load model
 model = get_model(args)
-checkpoint = torch.load(args.ckpt)
+checkpoint = torch.load(args.ckpt, map_location=device)
 model.load_state_dict(checkpoint['state_dict'])
 model.eval()
 model.to(device)
+
+# Load processor
 processor = AutoProcessor.from_pretrained("google/siglip-base-patch16-224")
 
 def classify_image_text(image, text):
@@ -34,30 +33,33 @@ def classify_image_text(image, text):
     inputs = processor(text=[text], images=[image], return_tensors="pt", padding=True, truncation=True)
     text_tokens = inputs["input_ids"]
     img_tokens = inputs["pixel_values"]
+    label = torch.tensor([1]).to(device)  # Dummy label
 
     # Move inputs to device
     text_tokens = text_tokens.to(device)
     img_tokens = img_tokens.to(device)
-    label = torch.tensor([0]).to(device) # ignore this
-        
 
-    # model inference
+    # Model inference
     with torch.no_grad():
         x1_logits, x2_logits, _, _ = model(text_tokens, img_tokens, label)
         logits = (x1_logits + x2_logits) / 2
     
-    # convert to predicted class
-    prediction = logits.argmax(-1).item()  # Convert to Python int
-    
-    # Map your model's output to "fake" or "real"
+    # Prediction
+    prediction = logits.argmax(-1).item()
     result = "real" if prediction == 1 else "fake"
     return result
 
-# Define Gradio interface
-inputs = ['image', 'text']
-outputs = 'text'
+# Example inputs
+examples = [
+    ["pics/demo_images/6zgaac.webp", "Reporter Rescues Two Dolphins While Covering Hurricane Irma"],
+    ["pics/demo_images/b1d1hj.png", "North Korean Air Force bombing Seoul during the Korean War (1950)"],
+    ["pics/demo_images/bg38c7.webp", "The clouds blocked the Empire State Building from view outside my window so that it looked like it disappeared."],
+    ["pics/demo_images/comv5l9.jpeg", "Obama really is a lizard person"],
+]
 
-demo = gr.Interface(fn=classify_image_text, inputs=inputs, outputs=outputs, title="Fake or Real Classifier")
+# Define Gradio interface
+demo = gr.Interface(fn=classify_image_text, inputs=['image', 'text'], outputs='text',
+                    title="Fake or Real Classifier", examples=examples)
 
 # Launch the demo
 demo.launch()
