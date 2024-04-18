@@ -81,3 +81,10 @@ gdown 1qhrTwjFIJagC7mqqGp5VwsujLOkVJdou
 
 3. Run the script with `bash generate_metrics.sh`. This will print to the console the test metrics for the model you selected.
 
+## Demo
+
+To launch the demo, get the path of your trained checkpoint. Modify variables in `demo.sh` with the correct values. Then, run the following command: 
+```bash
+sh ./demo.sh
+```
+This will bring up a gradio demo where you can play with the model. 
