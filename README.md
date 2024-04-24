@@ -2,7 +2,7 @@
 
 Authors: Haoli, David, and Lincoln
 
-This repository contains the code to reproduce all experiments for our paper in the AI4CPS class. 
+This repository contains the code to reproduce all experiments for our paper in the AI4CPS class. A copy of the manuscript can be viewed [here](Multimodal_Fake_News.pdf)
 
 ## Setup
 
