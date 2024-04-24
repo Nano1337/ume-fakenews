@@ -15,7 +15,7 @@ alpha: 0.1
 
 # main settings that need to be checked
 use_wandb: True
-model_type: "qmf" # Options: see __init__.py in this directory
+model_type: "ensemble" # Options: see __init__.py in this directory
 group_name: "weibo_cls2_qmf_chineseclip_lr=0.01_scheduler" 
 seed: 0
 use_scheduler: True

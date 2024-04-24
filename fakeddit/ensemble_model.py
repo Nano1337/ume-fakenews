@@ -81,7 +81,7 @@ class MultimodalFakedditModel(EnsembleBaseModel):
 
     def configure_optimizers(self):
         optimizer = torch.optim.SGD(self.parameters(), lr=self.args.learning_rate, momentum=0.9, weight_decay=1.0e-4)
-        if self.args.use_scheduler:
+        if self.args.use_scheduler: 
             scheduler = {
                 'scheduler': StepLR(optimizer, step_size=500, gamma=0.5),
                 'interval': 'step',
